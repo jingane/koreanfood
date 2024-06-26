@@ -8,14 +8,16 @@ def get_recipes(query):
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
 
-    # Find first recipe link and return its URL
+    recipes = []
     results = soup.find_all('li', class_='common_sp_list_li')
-    if results:
-        first_result = results[0]
-        link = first_result.find('a')['href']
-        return link
-    else:
-        return None
+    for result in results:
+        title_elem = result.find('div', class_='common_sp_caption_tit line2')
+        if title_elem:
+            title = title_elem.get_text(strip=True)
+            link = result.find('a')['href']
+            recipes.append({'title': title, 'link': link})
+
+    return recipes
 
 def main():
     st.title('단일 음식재료 기반 요리 레시피 검색')
@@ -23,14 +25,17 @@ def main():
     ingredient = st.text_input('음식재료')
 
     if st.button('레시피 검색'):
-        recipe_link = get_recipes(ingredient)
+        try:
+            recipes = get_recipes(ingredient)
 
-        if recipe_link:
-            st.header('검색 결과')
-            st.markdown(f"### 레시피 링크")
-            components.iframe(recipe_link, width=700, height=600)
-        else:
-            st.write('검색 결과가 없습니다.')
+            if recipes:
+                st.header('검색 결과')
+                for recipe in recipes:
+                    st.markdown(f"### [{recipe['title']}]({recipe['link']})")
+            else:
+                st.write('검색 결과가 없습니다.')
+        except Exception as e:
+            st.error(f"오류가 발생했습니다: {e}")
 
 if __name__ == "__main__":
     main()
