@@ -1,40 +1,35 @@
 import streamlit as st
-from transformers import GPT2LMHeadModel, GPT2Tokenizer
-
-# ChatGPT 모델과 토크나이저 초기화
-tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
-model = GPT2LMHeadModel.from_pretrained("gpt2")
-
-def generate_recipe(ingredients):
-    # 사용자 입력을 기반으로 요리 레시피 생성
-    input_text = "요리를 만드는 법: {}.".format(", ".join(ingredients))
-    input_ids = tokenizer.encode(input_text, return_tensors="pt")
-
-    # ChatGPT 모델을 사용하여 요리 레시피 생성
-    output = model.generate(input_ids, max_length=300, num_return_sequences=5, no_repeat_ngram_size=2)
-
-    recipes = [tokenizer.decode(o, skip_special_tokens=True) for o in output]
-
-    return recipes
 
 def main():
-    st.title("냉장고를 지켜줘 - 반찬 재료 기반 요리 레시피 생성기")
+    st.title('냉장고를 지켜줘 - 반찬 재료 기반 요리 레시피 추천')
 
-    # 반찬 재료 입력 받기
-    ingredient1 = st.text_input("반찬 재료 1:")
-    ingredient2 = st.text_input("반찬 재료 2:")
-    ingredient3 = st.text_input("반찬 재료 3:")
-    ingredient4 = st.text_input("반찬 재료 4:")
-    ingredient5 = st.text_input("반찬 재료 5:")
+    # 사용자 입력 받기
+    ingredients = []
+    st.write("반찬 재료를 입력하세요:")
+    for i in range(5):
+        ingredient = st.text_input(f'반찬 재료 {i+1}')
+        ingredients.append(ingredient)
 
-    if st.button("레시피 생성하기"):
-        ingredients = [ingredient1, ingredient2, ingredient3, ingredient4, ingredient5]
-        recipes = generate_recipe(ingredients)
+    # ChatGPT를 이용한 요리 추천 (간략화된 예시)
+    recommended_recipes = [
+        "김치볶음밥",
+        "된장찌개",
+        "고추장불고기",
+        "무생채",
+        "계란말이"
+    ]
 
-        st.subheader("생성된 요리 레시피:")
-        for i, recipe in enumerate(recipes):
-            st.markdown(f"**레시피 {i+1}:**")
-            st.write(recipe)
+    st.write("\n추천 요리 레시피:")
+    for recipe in recommended_recipes:
+        if all(ingredient in recipe for ingredient in ingredients if ingredient):
+            if st.button(recipe):
+                show_recipe(recipe)
+
+def show_recipe(recipe_name):
+    st.write(f"{recipe_name} 요리 레시피:")
+    if recipe_name == "김치볶음밥":
+        st.write("1. 밥과 김치, 돼지고기, 고추장을 볶습니다.")
+        st.write("2. 계란을 풀어 넣고 볶으면 완성입니다.")
 
 if __name__ == "__main__":
     main()
