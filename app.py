@@ -1,40 +1,38 @@
 import streamlit as st
-import openai  # OpenAI API를 사용하기 위한 라이브러리
-
-# OpenAI API 설정 (본인의 API 키를 사용해야 함)
-openai.api_key = "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"
-
-def generate_recipes(ingredients):
-    prompt = f"Given these ingredients: {', '.join(ingredients)}, suggest 5 recipes."
-    response = openai.Completion.create(
-        engine="text-davinci-002",  # ChatGPT 모델 엔진 선택
-        prompt=prompt,
-        max_tokens=150
-    )
-    recipes = response.choices
-    return recipes
+from chatbot import generate_recipe
 
 def main():
-    st.title("냉장고를 지켜줘 - 요리 레시피 생성기")
-    
+    st.title('냉장고를 지켜줘 - 반찬 재료로 요리 만들기')
+
     # 반찬 재료 입력 받기
-    ingredients = []
-    for i in range(5):
-        ingredient = st.text_input(f"반찬 재료 {i+1}")
-        if ingredient:
-            ingredients.append(ingredient)
-    
-    if ingredients:
-        st.subheader("입력된 반찬 재료:")
-        st.write(ingredients)
+    st.subheader('반찬 재료를 입력하세요 (쉼표로 구분)')
+    ingredients_str = st.text_input('예: 고추장, 두부, 계란, 감자, 미나리')
+
+    if st.button('레시피 찾기'):
+        ingredients = [ingredient.strip() for ingredient in ingredients_str.split(',')]
         
-        # ChatGPT를 이용해 레시피 생성
-        st.subheader("생성된 요리 레시피:")
-        recipes = generate_recipes(ingredients)
-        
-        for idx, recipe in enumerate(recipes):
-            st.markdown(f"**레시피 {idx+1}:** {recipe.text}")
-            st.markdown("*(레시피 클릭 시 상세 요리법 표시)*")
-    
-if __name__ == "__main__":
+        if len(ingredients) != 5:
+            st.warning('정확히 5개의 반찬 재료를 입력하세요!')
+        else:
+            st.success('입력된 반찬 재료: {}'.format(', '.join(ingredients)))
+            st.subheader('추천 요리')
+
+            recipes = generate_recipe(ingredients)  # ChatGPT를 사용하여 요리 레시피 추천
+
+            for i, recipe in enumerate(recipes, start=1):
+                st.write(f'**레시피 {i}:** {recipe}')
+
+def generate_recipe(ingredients):
+    # 여기서는 간단하게 임의의 레시피를 생성하도록 하겠습니다.
+    # 실제로는 데이터베이스나 외부 API를 사용하여 진짜 레시피를 추천할 수 있습니다.
+    recipes = [
+        f'반찬 재료 {", ".join(ingredients)}를 사용한 레시피 1',
+        f'반찬 재료 {", ".join(ingredients)}를 사용한 레시피 2',
+        f'반찬 재료 {", ".join(ingredients)}를 사용한 레시피 3',
+        f'반찬 재료 {", ".join(ingredients)}를 사용한 레시피 4',
+        f'반찬 재료 {", ".join(ingredients)}를 사용한 레시피 5',
+    ]
+    return recipes
+
+if __name__ == '__main__':
     main()
