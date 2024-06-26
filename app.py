@@ -1,41 +1,33 @@
 import streamlit as st
 import requests
 from bs4 import BeautifulSoup
-import streamlit.components.v1 as components
 
-def get_recipes(query):
-    url = f"https://m.10000recipe.com/recipe/list.html?q={query}"
+def search_recipes(ingredients):
+    url = f'https://m.10000recipe.com/recipe/list.html?q={"+".join(ingredients)}'
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
-
+    
     recipes = []
-    results = soup.find_all('li', class_='common_sp_list_li')
+    results = soup.find_all('div', class_='common_sp_thumb')
     for result in results:
-        title_elem = result.find('div', class_='common_sp_caption_tit line2')
-        if title_elem:
-            title = title_elem.get_text(strip=True)
-            link = result.find('a')['href']
-            recipes.append({'title': title, 'link': link})
-
+        title = result.find('h4').text.strip()
+        link = result.find('a')['href']
+        recipes.append({'title': title, 'link': link})
+    
     return recipes
 
-def main():
-    st.title('단일 음식재료 기반 요리 레시피 검색')
+st.title('냉장고를 지켜줘 - 반찬재료로 요리 레시피 검색하기')
 
-    ingredient = st.text_input('음식재료')
+ingredients = st.text_input('반찬재료를 입력하세요 (예: 김치, 계란, 두부)')
 
-    if st.button('레시피 검색'):
-        try:
-            recipes = get_recipes(ingredient)
-
-            if recipes:
-                st.header('검색 결과')
-                for recipe in recipes:
-                    st.markdown(f"### [{recipe['title']}]({recipe['link']})")
-            else:
-                st.write('검색 결과가 없습니다.')
-        except Exception as e:
-            st.error(f"오류가 발생했습니다: {e}")
-
-if __name__ == "__main__":
-    main()
+if st.button('검색'):
+    if ingredients:
+        recipes = search_recipes(ingredients.split(','))
+        if recipes:
+            st.header('검색 결과:')
+            for recipe in recipes:
+                st.markdown(f"[{recipe['title']}]({recipe['link']})")
+        else:
+            st.warning('레시피를 찾을 수 없습니다.')
+    else:
+        st.warning('반찬재료를 입력해주세요.')
