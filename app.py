@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 
 def search_recipes(ingredients):
-    url = f'https://m.10000recipe.com/recipe/list.html?q=김치'
+    url = f'https://m.10000recipe.com/recipe/list.html?q=%EB%90%9C%EC%9E%A5'
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
     
