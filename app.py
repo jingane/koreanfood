@@ -1,38 +1,20 @@
 import streamlit as st
-from chatbot import generate_recipe
 
 def main():
-    st.title('냉장고를 지켜줘 - 반찬 재료로 요리 만들기')
+    st.title('냉장고를 지켜줘 - 반찬 재료로 요리 추천하기')
+    st.write('반찬 재료를 입력하세요.')
 
-    # 반찬 재료 입력 받기
-    st.subheader('반찬 재료를 입력하세요 (쉼표로 구분)')
-    ingredients_str = st.text_input('예: 고추장, 두부, 계란, 감자, 미나리')
+    # 사용자에게 입력 받기
+    ingredient1 = st.text_input('재료 1:')
+    ingredient2 = st.text_input('재료 2:')
+    ingredient3 = st.text_input('재료 3:')
+    ingredient4 = st.text_input('재료 4:')
+    ingredient5 = st.text_input('재료 5:')
 
     if st.button('레시피 찾기'):
-        ingredients = [ingredient.strip() for ingredient in ingredients_str.split(',')]
-        
-        if len(ingredients) != 5:
-            st.warning('정확히 5개의 반찬 재료를 입력하세요!')
-        else:
-            st.success('입력된 반찬 재료: {}'.format(', '.join(ingredients)))
-            st.subheader('추천 요리')
-
-            recipes = generate_recipe(ingredients)  # ChatGPT를 사용하여 요리 레시피 추천
-
-            for i, recipe in enumerate(recipes, start=1):
-                st.write(f'**레시피 {i}:** {recipe}')
-
-def generate_recipe(ingredients):
-    # 여기서는 간단하게 임의의 레시피를 생성하도록 하겠습니다.
-    # 실제로는 데이터베이스나 외부 API를 사용하여 진짜 레시피를 추천할 수 있습니다.
-    recipes = [
-        f'반찬 재료 {", ".join(ingredients)}를 사용한 레시피 1',
-        f'반찬 재료 {", ".join(ingredients)}를 사용한 레시피 2',
-        f'반찬 재료 {", ".join(ingredients)}를 사용한 레시피 3',
-        f'반찬 재료 {", ".join(ingredients)}를 사용한 레시피 4',
-        f'반찬 재료 {", ".join(ingredients)}를 사용한 레시피 5',
-    ]
-    return recipes
+        # 여기서 레시피 추천 및 표시 로직을 구현합니다
+        # 추천된 레시피를 화면에 보여줍니다
+        st.write('추천된 레시피들을 표시합니다.')
 
 if __name__ == '__main__':
     main()
