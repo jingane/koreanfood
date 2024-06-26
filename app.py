@@ -1,9 +1,13 @@
 import streamlit as st
 import requests
 from bs4 import BeautifulSoup
+import urllib.parse
 
 def search_recipes(ingredients):
-    url = f'https://m.10000recipe.com/recipe/list.html?q=%EB%90%9C%EC%9E%A5'
+    base_url = 'https://m.10000recipe.com/recipe/list.html'
+    params = {'q': '+'.join(ingredients)}
+    url = base_url + '?' + urllib.parse.urlencode(params)
+    
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
     
@@ -11,7 +15,7 @@ def search_recipes(ingredients):
     results = soup.find_all('div', class_='common_sp_thumb')
     for result in results:
         title = result.find('h4').text.strip()
-        link = result.find('a')['href']
+        link = 'https://m.10000recipe.com' + result.find('a')['href']
         recipes.append({'title': title, 'link': link})
     
     return recipes
