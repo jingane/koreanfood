@@ -2,8 +2,8 @@ import streamlit as st
 import requests
 from bs4 import BeautifulSoup
 
-def get_recipes(query1, query2):
-    url = f"https://m.10000recipe.com/recipe/list.html?q={query1}+{query2}"
+def get_recipes(query):
+    url = f"https://m.10000recipe.com/recipe/list.html?q={query}"
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
 
@@ -19,13 +19,12 @@ def get_recipes(query1, query2):
     return recipes
 
 def main():
-    st.title('음식재료 기반 요리 레시피 검색')
+    st.title('단일 음식재료 기반 요리 레시피 검색')
 
-    ingredient1 = st.text_input('음식재료 1')
-    ingredient2 = st.text_input('음식재료 2')
+    ingredient = st.text_input('음식재료')
 
     if st.button('레시피 검색'):
-        recipes = get_recipes(ingredient1, ingredient2)
+        recipes = get_recipes(ingredient)
 
         if recipes:
             st.header('검색 결과')
