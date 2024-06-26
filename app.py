@@ -1,40 +1,40 @@
 import streamlit as st
-import openai
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
-# OpenAI API key 설정
-openai.api_key = "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"
+# ChatGPT 모델과 토크나이저 초기화
+tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+model = GPT2LMHeadModel.from_pretrained("gpt2")
 
 def generate_recipe(ingredients):
-    # ChatGPT를 사용하여 요리 레시피 생성
-    prompt = f"요리할 수 있는 반찬 재료: {', '.join(ingredients)}"
-    response = openai.Completion.create(
-        engine="text-davinci-002",
-        prompt=prompt,
-        max_tokens=150
-    )
-    recipe = response.choices[0].text.strip()
-    return recipe
+    # 사용자 입력을 기반으로 요리 레시피 생성
+    input_text = "요리를 만드는 법: {}.".format(", ".join(ingredients))
+    input_ids = tokenizer.encode(input_text, return_tensors="pt")
+
+    # ChatGPT 모델을 사용하여 요리 레시피 생성
+    output = model.generate(input_ids, max_length=300, num_return_sequences=5, no_repeat_ngram_size=2)
+
+    recipes = [tokenizer.decode(o, skip_special_tokens=True) for o in output]
+
+    return recipes
 
 def main():
-    st.title('냉장고를 지켜줘 - 반찬 재료로 요리 추천하기')
-    st.write('반찬 재료를 입력하세요.')
+    st.title("냉장고를 지켜줘 - 반찬 재료 기반 요리 레시피 생성기")
 
-    # 사용자에게 입력 받기
-    ingredient1 = st.text_input('재료 1:')
-    ingredient2 = st.text_input('재료 2:')
-    ingredient3 = st.text_input('재료 3:')
-    ingredient4 = st.text_input('재료 4:')
-    ingredient5 = st.text_input('재료 5:')
+    # 반찬 재료 입력 받기
+    ingredient1 = st.text_input("반찬 재료 1:")
+    ingredient2 = st.text_input("반찬 재료 2:")
+    ingredient3 = st.text_input("반찬 재료 3:")
+    ingredient4 = st.text_input("반찬 재료 4:")
+    ingredient5 = st.text_input("반찬 재료 5:")
 
-    ingredients = [ingredient1, ingredient2, ingredient3, ingredient4, ingredient5]
-    ingredients = [ing for ing in ingredients if ing]  # 빈칸 제외
+    if st.button("레시피 생성하기"):
+        ingredients = [ingredient1, ingredient2, ingredient3, ingredient4, ingredient5]
+        recipes = generate_recipe(ingredients)
 
-    if st.button('레시피 찾기'):
-        if ingredients:
-            recipe = generate_recipe(ingredients)
-            st.write(f"추천된 레시피:\n{recipe}")
-        else:
-            st.write("반찬 재료를 입력해주세요.")
+        st.subheader("생성된 요리 레시피:")
+        for i, recipe in enumerate(recipes):
+            st.markdown(f"**레시피 {i+1}:**")
+            st.write(recipe)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
